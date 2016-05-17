@@ -66,5 +66,7 @@ Source文件夹中两个文件直接拷贝到项目中
         
         let mainView = XHorizontalMainView(frame: CGRectMake(0, 100, 300, 500), menu: menuView)
         
+        menuView.menuArr = []  //更改数据源 界面会自动刷新
+        
         
   
