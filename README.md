@@ -7,8 +7,8 @@
 
 这里把菜单和主view拆分开了  两者位置大小没有关系 可以随便放到哪个view
 
-可以自定义菜单字体颜色 缩放大小等
-r
+可以自定义菜单字体颜色 缩放大小等 菜单切换时菜单字体颜色带渐变过度效果
+
 支持各个屏幕方向 支持自动/代码布局
 
 ![image](https://github.com/xpf0000/XHorizontalView/blob/master/XHorizontalView/Untitled.gif)   
