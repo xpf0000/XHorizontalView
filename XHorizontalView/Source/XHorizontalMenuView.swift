@@ -119,6 +119,7 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
     {
         didSet
         {
+            main?.menu = self
             reloadData()
         }
     }

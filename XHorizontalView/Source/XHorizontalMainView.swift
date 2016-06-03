@@ -14,6 +14,7 @@ class XHorizontalMainView: UICollectionView,UICollectionViewDelegate,UICollectio
     {
         didSet
         {
+            menu?.main=self
             reloadData()
         }
     }
