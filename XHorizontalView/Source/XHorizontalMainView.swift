@@ -11,6 +11,12 @@ import UIKit
 class XHorizontalMainView: UICollectionView,UICollectionViewDelegate,UICollectionViewDataSource,UIScrollViewDelegate {
     
     weak var menu:XHorizontalMenuView?
+    {
+        didSet
+        {
+            reloadData()
+        }
+    }
     
     var UIChanged:Bool = false
         {
@@ -25,7 +31,6 @@ class XHorizontalMainView: UICollectionView,UICollectionViewDelegate,UICollectio
         
     }
     
-    
     override func layoutSubviews() {
         super.layoutSubviews()
         
@@ -39,26 +44,16 @@ class XHorizontalMainView: UICollectionView,UICollectionViewDelegate,UICollectio
         
         if size?.width != frame.size.width || size?.height != frame.size.height
         {
-            print("Main UI is Change!!!!!!!!!")
-            
             (self.collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize = CGSizeMake(frame.size.width, frame.size.height)
-            reloadData()
-            
         }
         
-    }
-    
-    
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+        reloadData()
         
     }
     
-    override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
-        
-        super.init(frame: frame, collectionViewLayout: layout)
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(XHorizontalMenuView.changeUI), name: UIDeviceOrientationDidChangeNotification, object: nil)
+    func initSelf()
+    {
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(changeUI), name: UIDeviceOrientationDidChangeNotification, object: nil)
         
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
@@ -71,6 +66,28 @@ class XHorizontalMainView: UICollectionView,UICollectionViewDelegate,UICollectio
         dataSource = self
         
         registerClass(UICollectionViewCell.self, forCellWithReuseIdentifier: "mainViewCell")
+    }
+    
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        
+        initSelf()
+        
+        let mainLayout = UICollectionViewFlowLayout()
+        mainLayout.scrollDirection = .Horizontal
+        mainLayout.minimumLineSpacing = 0.0
+        mainLayout.minimumInteritemSpacing = 0.0
+        mainLayout.itemSize = CGSizeMake(frame.size.width, frame.size.height)
+        
+        self.collectionViewLayout = mainLayout
+    }
+    
+    override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
+        
+        super.init(frame: frame, collectionViewLayout: layout)
+        
+        initSelf()
         
     }
     
@@ -186,17 +203,20 @@ class XHorizontalMainView: UICollectionView,UICollectionViewDelegate,UICollectio
         
         if(menu!.selectIndex != currentPage)
         {
+            menu?.lastIndex = currentPage;
             menu!.selectIndex=currentPage;
+            menu?.lastIndex = currentPage;
         }
     }
-
     
+    func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+        
+        menu?.taped = false
+    }
     
     deinit
     {
-        print("XHorizontalMainView deinit !!!!!!!!!!")
-        
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
-
+    
 }

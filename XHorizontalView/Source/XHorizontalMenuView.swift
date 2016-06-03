@@ -40,13 +40,12 @@ class XHorizontalMenuModel: NSObject {
     
     deinit
     {
-        print("XHorizontalMenuModel deinit !!!!!!!!!!")
     }
 }
 
 
 class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectionViewDataSource {
-
+    
     let line:UIView = UIView()
     
     var menuTextColor : UIColor = UIColor(red: 86.0/255.0, green: 86.0/255.0, blue: 86.0/255.0, alpha: 1.0)
@@ -89,10 +88,14 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
         return frame.size.width/self.menuPageNum
     }
     
+    var taped = false
+    
     var selectIndex : Int = 0
         {
         didSet
         {
+            self.lastIndex = oldValue
+            
             reloadData()
             
             selectItemAtIndexPath(NSIndexPath(forRow: self.selectIndex, inSection: 0), animated: true, scrollPosition: UICollectionViewScrollPosition.CenteredHorizontally)
@@ -110,21 +113,34 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
         }
     }
     
+    var lastIndex = 0
+    
     weak var main:XHorizontalMainView?
+    {
+        didSet
+        {
+            reloadData()
+        }
+    }
     
     var menuPageNum:CGFloat = 3
     
     var menuArr:[XHorizontalMenuModel] = []
-    {
+        {
         didSet
         {
             self.changeUI()
+            self.main?.changeUI()
+            if selectIndex >= menuArr.count
+            {
+                selectIndex = menuArr.count-1
+            }
         }
         
     }
     
     var UIChanged:Bool = false
-    {
+        {
         willSet
         {
             if newValue != UIChanged
@@ -133,8 +149,10 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
             }
             
         }
-
+        
     }
+    
+    var lineHeight:CGFloat = 2.0
     
     
     override func layoutSubviews() {
@@ -146,35 +164,23 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
     
     func changeUI()
     {
-
         let size = (self.collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize
         
         if size?.width != menuWidth || size?.height != frame.size.height
         {
-            print("UI is Change!!!!!!!!!")
-            
             (self.collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize = CGSizeMake(menuWidth, frame.size.height)
-            reloadData()
-            
-            
             line.frame.size.width = self.menuWidth*0.8
-            self.line.frame.origin.y = self.frame.size.height - 3.0
+            self.line.frame.origin.y = self.frame.size.height - lineHeight
             self.line.center.x = self.menuWidth*CGFloat(self.selectIndex)+self.menuWidth/2.0
         }
- 
-    }
-
-    
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+        
+        reloadData()
         
     }
     
-    override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
-        
-        super.init(frame: frame, collectionViewLayout: layout)
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(XHorizontalMenuView.changeUI), name: UIDeviceOrientationDidChangeNotification, object: nil)
+    func initSelf()
+    {
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(changeUI), name: UIDeviceOrientationDidChangeNotification, object: nil)
         
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
@@ -185,11 +191,35 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
         
         delegate = self
         dataSource = self
-
+        
         line.backgroundColor=menuSelectColor
-        line.frame=CGRectMake(0, frame.size.height-3, self.menuWidth*0.8, 3);
+        line.frame=CGRectMake(0, frame.size.height-lineHeight, self.menuWidth*0.8, lineHeight);
         line.center.x = frame.size.width/menuPageNum/2.0
         addSubview(line)
+        
+        
+        
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        
+        self.initSelf()
+        
+        let menulayout = UICollectionViewFlowLayout()
+        menulayout.scrollDirection = .Horizontal
+        menulayout.minimumLineSpacing = 0.0
+        menulayout.minimumInteritemSpacing = 0.0
+        menulayout.itemSize = CGSizeMake(frame.size.width, frame.size.height)
+        
+        self.collectionViewLayout = menulayout
+    }
+    
+    override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
+        
+        super.init(frame: frame, collectionViewLayout: layout)
+        
+        self.initSelf()
         
     }
     
@@ -203,7 +233,7 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
         menulayout.itemSize = CGSizeMake(frame.size.width, frame.size.height)
         
         self.init(frame: frame, collectionViewLayout: menulayout)
-
+        
         menuArr = arr
         
     }
@@ -231,7 +261,7 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
         titleLabel.textAlignment=NSTextAlignment.Center;
         titleLabel.backgroundColor=UIColor.clearColor()
         titleLabel.textColor = menuTextColor
-        titleLabel.font=UIFont.systemFontOfSize(18.0)
+        titleLabel.font=UIFont.systemFontOfSize(15.0)
         titleLabel.tag = 30+indexPath.row
         
         titleLabel.sizeToFit()
@@ -239,9 +269,41 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
         
         if(indexPath.row==self.selectIndex)
         {
-            titleLabel.textColor=menuSelectColor
+            if taped
+            {
+                UIView.animateWithDuration(0.25, animations: {
+                    
+                    titleLabel.textColor=self.menuSelectColor
+                    
+                    titleLabel.transform = CGAffineTransformMakeScale(self.menuMaxScale, self.menuMaxScale)
+                    
+                })
+            }
+            else
+            {
+                titleLabel.textColor=menuSelectColor
+                titleLabel.transform = CGAffineTransformMakeScale(self.menuMaxScale, self.menuMaxScale)
+            }
             
-            titleLabel.transform = CGAffineTransformMakeScale(menuMaxScale, menuMaxScale)
+        }
+        else if(indexPath.row==lastIndex)
+        {
+            if lastIndex != selectIndex && taped
+            {
+                titleLabel.textColor=self.menuSelectColor
+                titleLabel.transform = CGAffineTransformMakeScale(self.menuMaxScale, self.menuMaxScale)
+                UIView.animateWithDuration(0.25, animations: {
+                    
+                    titleLabel.textColor = self.menuTextColor
+                    titleLabel.transform = CGAffineTransformMakeScale(1.0, 1.0)
+                    
+                })
+            }
+            else
+            {
+                titleLabel.transform = CGAffineTransformMakeScale(1.0, 1.0)
+            }
+            
         }
         else
         {
@@ -254,15 +316,13 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
     }
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-        
+        self.taped = true
         self.selectIndex=indexPath.row;
         
     }
     
     deinit
     {
-        print("XHorizontalMenuView deinit !!!!!!!!!!")
-        
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
