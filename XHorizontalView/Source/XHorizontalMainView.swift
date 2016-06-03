@@ -53,6 +53,14 @@ class XHorizontalMainView: UICollectionView,UICollectionViewDelegate,UICollectio
     
     func initSelf()
     {
+        let mainLayout = UICollectionViewFlowLayout()
+        mainLayout.scrollDirection = .Horizontal
+        mainLayout.minimumLineSpacing = 0.0
+        mainLayout.minimumInteritemSpacing = 0.0
+        mainLayout.itemSize = CGSizeMake(frame.size.width, frame.size.height)
+        
+        collectionViewLayout = mainLayout
+        
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(changeUI), name: UIDeviceOrientationDidChangeNotification, object: nil)
         
         showsVerticalScrollIndicator = false
@@ -68,19 +76,18 @@ class XHorizontalMainView: UICollectionView,UICollectionViewDelegate,UICollectio
         registerClass(UICollectionViewCell.self, forCellWithReuseIdentifier: "mainViewCell")
     }
     
+    init()
+    {
+        super.init(frame: CGRectMake(0, 0, 1, 1), collectionViewLayout: UICollectionViewLayout())
+        
+        self.initSelf()
+    }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
         initSelf()
         
-        let mainLayout = UICollectionViewFlowLayout()
-        mainLayout.scrollDirection = .Horizontal
-        mainLayout.minimumLineSpacing = 0.0
-        mainLayout.minimumInteritemSpacing = 0.0
-        mainLayout.itemSize = CGSizeMake(frame.size.width, frame.size.height)
-        
-        self.collectionViewLayout = mainLayout
     }
     
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
@@ -93,14 +100,7 @@ class XHorizontalMainView: UICollectionView,UICollectionViewDelegate,UICollectio
     
     convenience init(frame: CGRect,menu:XHorizontalMenuView) {
         
-        
-        let mainLayout = UICollectionViewFlowLayout()
-        mainLayout.scrollDirection = .Horizontal
-        mainLayout.minimumLineSpacing = 0.0
-        mainLayout.minimumInteritemSpacing = 0.0
-        mainLayout.itemSize = CGSizeMake(frame.size.width, frame.size.height)
-        
-        self.init(frame: frame, collectionViewLayout: mainLayout)
+        self.init(frame: frame, collectionViewLayout: UICollectionViewLayout())
         
         self.menu = menu
         self.menu?.main = self

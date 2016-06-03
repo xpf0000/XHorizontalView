@@ -180,6 +180,14 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
     
     func initSelf()
     {
+        let menulayout = UICollectionViewFlowLayout()
+        menulayout.scrollDirection = .Horizontal
+        menulayout.minimumLineSpacing = 0.0
+        menulayout.minimumInteritemSpacing = 0.0
+        menulayout.itemSize = CGSizeMake(frame.size.width, frame.size.height)
+        
+        collectionViewLayout = menulayout
+        
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(changeUI), name: UIDeviceOrientationDidChangeNotification, object: nil)
         
         showsVerticalScrollIndicator = false
@@ -197,8 +205,6 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
         line.center.x = frame.size.width/menuPageNum/2.0
         addSubview(line)
         
-        
-        
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -206,13 +212,6 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
         
         self.initSelf()
         
-        let menulayout = UICollectionViewFlowLayout()
-        menulayout.scrollDirection = .Horizontal
-        menulayout.minimumLineSpacing = 0.0
-        menulayout.minimumInteritemSpacing = 0.0
-        menulayout.itemSize = CGSizeMake(frame.size.width, frame.size.height)
-        
-        self.collectionViewLayout = menulayout
     }
     
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
@@ -223,16 +222,16 @@ class XHorizontalMenuView: UICollectionView,UICollectionViewDelegate,UICollectio
         
     }
     
+    init()
+    {
+        super.init(frame: CGRectMake(0, 0, 1, 1), collectionViewLayout: UICollectionViewLayout())
+        
+        self.initSelf()
+    }
+    
     convenience init(frame: CGRect,arr:[XHorizontalMenuModel]) {
         
-        
-        let menulayout = UICollectionViewFlowLayout()
-        menulayout.scrollDirection = .Horizontal
-        menulayout.minimumLineSpacing = 0.0
-        menulayout.minimumInteritemSpacing = 0.0
-        menulayout.itemSize = CGSizeMake(frame.size.width, frame.size.height)
-        
-        self.init(frame: frame, collectionViewLayout: menulayout)
+        self.init(frame: frame, collectionViewLayout: UICollectionViewLayout())
         
         menuArr = arr
         
